@@ -1,0 +1,6 @@
+{
+    "name": "combinelasses",
+    "version": "1.0.0",
+    "description": "A ts utility provides function to combine ts classes with strong type support",
+    "main": "index.ts"
+}
