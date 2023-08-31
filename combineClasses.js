@@ -8,12 +8,16 @@ export default function combineClasses(...classes) {
         }
     }
     classes.forEach(cls => {
-        Object.getOwnPropertyNames(cls.prototype).forEach(name => {
-            const descriptor = Object.getOwnPropertyDescriptor(cls.prototype, name);
-            if (descriptor) {
-                Object.defineProperty(CombinedClass.prototype, name, descriptor);
-            }
-        });
+        let proto = cls.prototype;
+        while (proto !== Object.prototype) {
+            Object.getOwnPropertyNames(proto).forEach(name => {
+                const descriptor = Object.getOwnPropertyDescriptor(proto, name);
+                if (descriptor) {
+                    Object.defineProperty(CombinedClass.prototype, name, descriptor);
+                }
+            });
+            proto = Object.getPrototypeOf(proto);
+        }
     });
     Object.assign(CombinedClass, ...classes);
     return CombinedClass;
