@@ -3,7 +3,14 @@ export default function combineClasses<T extends NonEmptyArray<Constructor>>(...
         constructor(...args: any[]) {
             classes.forEach(cls => {
                 const instance = new cls(...args);
+                // copy properties
                 Object.assign(this, instance);
+                // bind methods
+                Object.getOwnPropertyNames(instance).forEach(prop => {
+                    if (typeof instance[prop] === 'function') {
+                        this[prop] = instance[prop].bind(this);
+                    }
+                });
             });
         }
     }
