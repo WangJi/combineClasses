@@ -2,6 +2,9 @@
     "name": "combineClasses",
     "version": "1.0.0",
     "description": "A ts utility provides function to combine ts classes with strong type support",
-    "main": "index.js",
-    "types": "index.d.ts"
+    "main": "./dist/index.js",
+    "types": "./typings/index.d.ts",
+    "devDependencies": {
+        "typescript": "^5.2.2"
+    }
 }

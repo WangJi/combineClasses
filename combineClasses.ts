@@ -1,16 +1,17 @@
 export default function combineClasses<T extends NonEmptyArray<Constructor>>(...classes: T) {
+    const onInitMethods: string[] = [];
+
     class CombinedClass {
         constructor(...args: any[]) {
             classes.forEach(cls => {
                 const instance = new cls(...args);
                 // copy properties
                 Object.assign(this, instance);
-                // // bind methods
-                // Object.getOwnPropertyNames(instance).forEach(prop => {
-                //     if (typeof instance[prop] === 'function') {
-                //         this[prop] = instance[prop].bind(this);
-                //     }
-                // });
+
+            });
+            // call onInit methods
+            onInitMethods.forEach(name => {
+                this[name]();
             });
         }
     }
@@ -20,8 +21,12 @@ export default function combineClasses<T extends NonEmptyArray<Constructor>>(...
         while (proto !== Object.prototype) {
             Object.getOwnPropertyNames(proto).forEach(name => {
                 const descriptor = Object.getOwnPropertyDescriptor(proto, name);
-                if (descriptor) {
-                    Object.defineProperty(CombinedClass.prototype, name, descriptor);
+                if (!descriptor) return;
+                Object.defineProperty(CombinedClass.prototype, name, descriptor);
+                const method = descriptor?.value;
+                // 检查方法是否具有 OnInit 装饰器
+                if (method && method[On_Init_Tag]) {
+                    onInitMethods.push(name);
                 }
             });
             proto = Object.getPrototypeOf(proto);
@@ -33,6 +38,13 @@ export default function combineClasses<T extends NonEmptyArray<Constructor>>(...
     return CombinedClass as IntersectionOfConstructor<T> & IntersectionOfClassesStatic<T>;
 }
 
+const On_Init_Tag = Symbol('OnInit');
+
+
+export const OnInit = (target: any, methodName: string, descriptor: PropertyDescriptor) => {
+    // 在此执行装饰器的逻辑
+    descriptor.value[On_Init_Tag] = true;
+};
 /** 非空数组 */
 type NonEmptyArray<T> = [T, ...T[]]
 

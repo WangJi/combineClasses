@@ -1,6 +1,10 @@
 {
     "compilerOptions": {
         "target": "ESNext",
-        "declaration": true
+        "declaration": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "outDir": "./dist",
+        "declarationDir": "./typings"
     }
 }
