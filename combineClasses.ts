@@ -1,3 +1,5 @@
+import assign from "./assign";
+
 export default function combineClasses<T extends NonEmptyArray<Constructor>>(...classes: T) {
     const onInitMethods: string[] = [];
 
@@ -5,8 +7,8 @@ export default function combineClasses<T extends NonEmptyArray<Constructor>>(...
         constructor(...args: any[]) {
             classes.forEach(cls => {
                 const instance = new cls(...args);
-                // copy properties
-                Object.assign(this, instance);
+                // copy properties，但是拒绝复制undefined
+                assign(this, instance);
 
             });
             // call onInit methods

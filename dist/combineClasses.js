@@ -1,11 +1,12 @@
+import assign from "./assign";
 export default function combineClasses(...classes) {
     const onInitMethods = [];
     class CombinedClass {
         constructor(...args) {
             classes.forEach(cls => {
                 const instance = new cls(...args);
-                // copy properties
-                Object.assign(this, instance);
+                // copy properties，但是拒绝复制undefined
+                assign(this, instance);
             });
             // call onInit methods
             onInitMethods.forEach(name => {
