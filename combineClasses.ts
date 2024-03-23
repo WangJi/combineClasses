@@ -1,4 +1,4 @@
-import assign from "./assign";
+import assign, { copyStaticMethods, copyProperties, copyStaticProperties } from "./assign";
 
 export default function combineClasses<T extends NonEmptyArray<Constructor>>(...classes: T) {
     const onInitMethods: string[] = [];
@@ -19,24 +19,16 @@ export default function combineClasses<T extends NonEmptyArray<Constructor>>(...
     }
 
     classes.forEach(cls => {
-        let proto = cls.prototype;
-        while (proto !== Object.prototype) {
-            Object.getOwnPropertyNames(proto).forEach(name => {
-                const descriptor = Object.getOwnPropertyDescriptor(proto, name);
-                if (!descriptor) return;
-                Object.defineProperty(CombinedClass.prototype, name, descriptor);
-                const method = descriptor?.value;
-                // 检查方法是否具有 OnInit 装饰器
-                if (method && method[On_Init_Tag]) {
-                    onInitMethods.push(name);
-                }
-            });
-            proto = Object.getPrototypeOf(proto);
-        }
+        copyStaticMethods(CombinedClass, cls);
+        copyStaticProperties(CombinedClass, cls);
+        const list = copyProperties(CombinedClass.prototype, cls.prototype);
+        list.forEach(([name, descriptor]) => {
+            const method = descriptor?.value;
+            if (method && method[On_Init_Tag]) {
+                onInitMethods.push(name);
+            }
+        });
     });
-
-    Object.assign(CombinedClass, ...classes);
-
     return CombinedClass as IntersectionOfConstructor<T> & IntersectionOfClassesStatic<T>;
 }
 
@@ -64,5 +56,7 @@ type IntersectionOfClasses<T extends any[]> = T extends [infer First extends abs
     : unknown;
 
 /** Class类型求交，构造函数以第一个Class的constructor为基准 */
-type IntersectionOfConstructor<T extends any[]> = { new(...args: ConstructorParameters<T[0]>): IntersectionOfClasses<T> };
+type IntersectionOfConstructor<T extends any[]> = {
+    new(...args: ConstructorParameters<T[0]>): IntersectionOfClasses<T>
+};
 
