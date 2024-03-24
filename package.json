@@ -6,7 +6,7 @@
     "build": "npm run build:cjs && npm run build:esm",
     "test": "npx ts-node text.ts"
   },
-  "version": "1.0.3",
+  "version": "1.0.5",
   "description": "A ts utility provides function to combine ts classes with strong type support",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
