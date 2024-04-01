@@ -6,8 +6,23 @@
     "build": "npm run build:cjs && npm run build:esm",
     "test": "npx ts-node text.ts"
   },
-  "version": "1.0.5",
-  "description": "A ts utility provides function to combine ts classes with strong type support",
+  "homepage": "https://github.com/WangJi/combineClasses",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/WangJi/combineClasses"
+  },
+  "keywords": [
+    "typescript",
+    "mixin",
+    "extend",
+    "composition",
+    "merging",
+    "partial",
+    "combine",
+    "classes"
+  ],
+  "version": "1.0.7",
+  "description": "A ts utility provides function to combine ts classes with type inference support",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/types/index.d.ts",

@@ -1,16 +1,30 @@
 ### What Does It Do?
 This package provides a utility function that allows you to write code in multiple partial classes and then combine them into a single class with full type support, similar to the experience of writing C# partial classes.
 
+### Quick Look
+
+```typescript
+import combineClasses from "partial_classes";
+import BigClassPart1 from './BigClassPart1'
+import BigClassPart2 from './BigClassPart2'
+const FinalClass = combineClasses(BigClassPart1, BigClassPart2)
+const instance = new FinalClass()
+// instance now has all the props defined in 2 above classes 
+// with Type Inference Support 
+```
+
 ### Supported Features
-| Feature              | Supported |
-|----------------------|-----------|
-| Constructor          | ✔️        |
-| Static Property      | ✔️        |
-| Static Method        | ✔️        |
-| Class Field          | ✔️        |
-| Instance Property    | ✔️        |
-| Instance Method      | ✔️        |
-| Getter&Setter Method | ✔️        |
+| Feature                      | Supported |
+|------------------------------|-----------|
+| Constructor                  | ✔️        |
+| Static Property              | ✔️        |
+| Static Method                | ✔️        |
+| Class Field                  | ✔️        |
+| Instance Property            | ✔️        |
+| Instance Method              | ✔️        |
+| Getter&Setter Method         | ✔️        |
+| Constructor Conflict Warning | ❌         |
+| Member OverWrite Warning     | ❌         |
 
 > We assume all the Constructors should have identical signatures, and only **First Constructor's Signature** will be used in the final constructor.
 
@@ -87,8 +101,8 @@ class B {
 // AB.ts
 const AB = combineClasses(A, B);
 AB.globalAMethod() // static method
-AB.globalA // static property
-ab.globalB // static property from B
+AB.globalA // static property from A
+AB.globalB // static property from B
 const ab = new AB('AB combined');
 // we use @OnInit to define the method that will be automatically called after the constructor is generated
 // thus onInitAfterInstanceIsCreated in B gets called
