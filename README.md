@@ -7,8 +7,8 @@ This package provides a utility function that allows you to write code in multip
 import combineClasses from "partial_classes";
 import BigClassPart1 from './BigClassPart1'
 import BigClassPart2 from './BigClassPart2'
-const FinalClass = combineClasses(BigClassPart1, BigClassPart2)
-const instance = new FinalClass()
+const BigClass = combineClasses(BigClassPart1, BigClassPart2)
+const instance = new BigClass()
 // instance now has all the props defined in 2 above classes 
 // with Type Inference Support 
 ```
