@@ -1,112 +1,82 @@
-### What Does It Do?
-This package provides a utility function that allows you to write code in multiple partial classes and then combine them into a single class with full type support, similar to the experience of writing C# partial classes.
+# partial_classes
 
-### Quick Look
+Compose TypeScript classes the way C# handles `partial class`: split a large implementation into focused pieces, then merge them
+into a single, fully-typed class with lifecycle hooks.
 
-```typescript
-import combineClasses from "partial_classes";
-import BigClassPart1 from './BigClassPart1'
-import BigClassPart2 from './BigClassPart2'
-const BigClass = combineClasses(BigClassPart1, BigClassPart2)
-const instance = new BigClass()
-// instance now has all the props defined in 2 above classes 
-// with Type Inference Support 
+## Why partial_classes?
+- **Productive authoring** – keep each concern in its own file while still delivering a single class to your consumers.
+- **Type-safe merging** – resulting constructors, instance members, and static members retain full type inference.
+- **Lifecycle-ready** – annotate methods with `@OnInit` to auto-run setup logic after the composed instance is created.
+- **Safety hints** – warns when constructors have different parameter counts or when duplicate members would be overwritten.
+
+### How does this compare to other libraries?
+Libraries like [`ts-mixer`](https://github.com/tannerntannern/ts-mixer) and [`mixwith`](https://github.com/justinfagnani/mixwith.js)
+offer mixin composition. `partial_classes` focuses specifically on the “partial class” workflow: merging complete class fragments
+(including statics), preserving descriptors (getters/setters), and providing an initialization decorator.
+
+## Installation
+```bash
+npm install partial_classes
 ```
 
-### Supported Features
-| Feature                      | Supported |
-|------------------------------|-----------|
-| Constructor                  | ✔️        |
-| Static Property              | ✔️        |
-| Static Method                | ✔️        |
-| Class Field                  | ✔️        |
-| Instance Property            | ✔️        |
-| Instance Method              | ✔️        |
-| Getter&Setter Method         | ✔️        |
-| Constructor Conflict Warning | ❌         |
-| Member OverWrite Warning     | ❌         |
-
-> We assume all the Constructors should have identical signatures, and only **First Constructor's Signature** will be used in the final constructor.
-
-### Why Not Use Typescript applyMixins, Object.assign, or Class Inheritance?
-+ Typescript applyMixins and Object.assign can combine class constructors; however, they do not provide type support beyond the basic any type for the resulting object. This utility function enables you to merge constructors while preserving all type definitions from each class.
-
-+ Using Class Inheritance is another method to combine classes. However, when merging more than three classes, you may encounter "inheritance hell," where maintaining the hierarchy becomes complex and error-prone. Our tool simplifies the process, allowing for easier maintenance without manually managing an inheritance chain.
-
-### How to use
-
-Both CommonJS and ES6 module systems are supported.  
-
-For optimal results, it is advised to define each partial class in a separate file.
-
-In Node.js, you can use the following tsconfig.json, then `npx ts-node YOUR_TS_FILE.ts`
-```json
-{
-  "compilerOptions": {
-    "target": "ESNext",
-    "module": "commonjs",
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "experimentalDecorators": true
-  }
-}
-```
-
+## Usage
 ```typescript
-
 import combineClasses, { OnInit } from 'partial_classes';
 import * as events from 'node:events';
 
-// A.ts
-class A {
-emitter: events.EventEmitter = new events.EventEmitter();
-    static globalA = 'globalA';
-    static globalAMethod() {
-        console.log('globalAMethod')
-    }
-    constructor(protected name: string) {
+class Publisher {
+  emitter: events.EventEmitter = new events.EventEmitter();
 
-    }
+  static channel = 'news';
+  static identify() {
+    return 'publisher';
+  }
 
-    public beforePublish() {
-        console.log(`${this.name} is now publishing`)
-    }
+  constructor(protected name: string) {}
 
-    public publish() {
-        this.emitter.emit('publish', 1234);
-    }
+  public publish() {
+    this.emitter.emit('publish', `${this.name} sent an update`);
+  }
 }
 
-// B.ts
-class B {
-    static globalB = 'globalB';
-    constructor(protected name: string) {
+class Subscriber {
+  static identify() {
+    return 'subscriber';
+  }
 
-    }
+  constructor(protected name: string) {}
 
-    public afterPublish() {
-        console.log(`${this.name} is publish finished`)
-    }
+  @OnInit
+  protected bind(this: Publisher & Subscriber) {
+    this.emitter.on('publish', this.onMessage.bind(this));
+  }
 
-    @OnInit
-    protected onInitAfterInstanceIsCreated(this: A & B) {
-        this.emitter.on('publish', this.subscribe.bind(this));
-    }
-
-    protected subscribe(arg: number) {
-        console.log(`${this.name} receives ${arg}`)
-    }
+  protected onMessage(message: string) {
+    console.log(`${this.name} received: ${message}`);
+  }
 }
 
-// AB.ts
-const AB = combineClasses(A, B);
-AB.globalAMethod() // static method
-AB.globalA // static property from A
-AB.globalB // static property from B
-const ab = new AB('AB combined');
-// we use @OnInit to define the method that will be automatically called after the constructor is generated
-// thus onInitAfterInstanceIsCreated in B gets called
-ab.beforePublish() // method in A
-ab.publish(); // method in A
-ab.afterSubscribe() // method in B
+const NewsClient = combineClasses(Publisher, Subscriber);
+const client = new NewsClient('Alice');
+client.publish(); // Triggers Subscriber.onMessage via @OnInit binding
 ```
+
+## Features
+- Merges constructors, static members, instance fields, methods, and accessors.
+- Runs `@OnInit` methods after the composed instance is constructed.
+- Preserves property descriptors (getters/setters and enumerability).
+- Warns when duplicate member names are encountered or when constructor parameter counts differ. The first constructor’s
+  signature is used for type inference.
+
+## Build & Contribute
+- Source code lives in `src/`, bundled with [`tsup`](https://tsup.egoist.dev/).
+- Run `npm run build` to produce ESM, CJS, and `.d.ts` outputs in `dist/`.
+- `npm run dev` watches for changes while developing.
+
+## Notes on member merging
+- Members named `constructor` are never copied from prototypes.
+- Duplicate member names are allowed, but later classes overwrite earlier ones; a console warning is emitted so you can resolve
+  conflicts explicitly.
+
+## License
+MIT
