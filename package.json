@@ -23,7 +23,7 @@
     "clean": "rm -rf dist",
     "dev": "tsup --watch",
     "prepare": "npm run build",
-    "test": "echo \"No tests configured. Run npm run build to validate compilation.\""
+    "test": "vitest run"
   },
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -40,7 +40,10 @@
     "README.md"
   ],
   "devDependencies": {
-    "tsup": "^7.2.0",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "vitest": "^4.0.9"
+  },
+  "dependencies": {
+    "tsup": "^8.5.1"
   }
 }
