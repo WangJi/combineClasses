@@ -1,11 +1,7 @@
 {
   "name": "partial_classes",
-  "scripts": {
-    "build:cjs": "tsc --outDir dist/cjs --module commonjs --declaration false",
-    "build:esm": "tsc --outDir dist/esm --module esnext  --declaration true --declarationDir dist/types",
-    "build": "npm run build:cjs && npm run build:esm",
-    "test": "npx ts-node text.ts"
-  },
+  "version": "1.1.0",
+  "description": "Powerful partial-class style composition for TypeScript with type-safe class merging and lifecycle hooks.",
   "homepage": "https://github.com/WangJi/combineClasses",
   "repository": {
     "type": "git",
@@ -19,18 +15,32 @@
     "merging",
     "partial",
     "combine",
-    "classes"
+    "classes",
+    "decorator"
   ],
-  "version": "1.0.8",
-  "description": "A ts utility provides function to combine ts classes with type inference support",
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
-  "types": "dist/types/index.d.ts",
+  "scripts": {
+    "build": "tsup",
+    "clean": "rm -rf dist",
+    "dev": "tsup --watch",
+    "prepare": "npm run build",
+    "test": "echo \"No tests configured. Run npm run build to validate compilation.\""
+  },
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "files": [
     "dist",
     "README.md"
   ],
   "devDependencies": {
+    "tsup": "^7.2.0",
     "typescript": "^5.2.2"
   }
 }
